@@ -1,0 +1,10 @@
+Part 1: vulnerable_memcopy — Rust's bounds check contains the overflow
+  [ok] reads past src:    expected panic, got index out of bounds
+  [ok] writes past dest:  expected panic, got index out of bounds
+  [ok] copy exactly fits: expected clean, got copied and returned
+  [ok] zero length:       expected clean, got copied and returned
+
+Part 2: xss_svg/image.svg — the payload executes in a real browser
+  [ok] inline <script> present in the payload
+  [ok] alert() call present
+  [ok] script executed in the browser (dialog raised: [''])

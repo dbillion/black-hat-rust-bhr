@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 6, part 2: SVG payload executes in a browser</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 6, part 2: SVG payload executes in a browser</div>
+<div class="s">Playwright/Chromium in the codespace · Rust nightly 1.102.0</div>
+<pre>Part 1: vulnerable_memcopy — Rust&#x27;s bounds check contains the overflow
+  [ok] reads past src:    expected panic, got index out of bounds
+  [ok] writes past dest:  expected panic, got index out of bounds
+  [ok] copy exactly fits: expected clean, got copied and returned
+  [ok] zero length:       expected clean, got copied and returned
+
+Part 2: xss_svg/image.svg — the payload executes in a real browser
+  [ok] inline &lt;script&gt; present in the payload
+  [ok] alert() call present
+  [ok] script executed in the browser (dialog raised: [&#x27;&#x27;])
+</pre>
+</div></body></html>
