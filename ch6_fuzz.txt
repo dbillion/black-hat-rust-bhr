@@ -1,0 +1,14 @@
+INFO: seed corpus: files: 1 min: 25b max: 25b total: 25b rss: 31Mb
+#2	INITED cov: 32 ft: 33 corp: 1/25b exec/s: 0 rss: 32Mb
+#3	NEW    cov: 33 ft: 35 corp: 2/40b lim: 25 exec/s: 0 rss: 32Mb L: 15/25 MS: 1 CrossOver-
+thread '<unnamed>' (7236) panicked at /fuzzing/src/lib.rs:5:19:
+==7236== ERROR: libFuzzer: deadly signal
+    #12 0x605204b13304 in libfuzzer_sys::initialize::{closure#0} /home/codespace/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/libfuzzer-sys-0.4.3/src/lib.rs:57:9
+    #20 0x605204b11af7 in vulnerable_memcopy /fuzzing/src/lib.rs:5
+SUMMARY: libFuzzer: deadly signal
+Failing input:
+	MemcopyInput {
+	    dest: [],
+	    src: [],
+	    n: 10995116277760,
+Error: Fuzz target exited with exit status: 77

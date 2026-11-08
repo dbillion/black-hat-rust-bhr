@@ -27,8 +27,17 @@ LIBS = [
 SVG = Path("ch_06/xss_svg/image.svg")
 WORKDIR = Path("/workspaces/black-hat-rust-bhr")
 
-ENV = dict(os.environ)
-ENV["PATH"] = str(HOME / ".cargo/bin") + ":" + ENV.get("PATH", "")
+# rustc lives under ~/.cargo/bin in the codespace; an un-sourced shell does not
+# have it on PATH, which makes every compile case fail as "compile error".
+CARGO_BIN = HOME / ".cargo/bin"
+if (CARGO_BIN / "rustc").exists():
+    ENV = dict(os.environ)
+    ENV["PATH"] = str(CARGO_BIN) + ":" + ENV.get("PATH", "")
+else:
+    ENV = dict(os.environ)
+
+# playwright is importable only from the interpreter it was installed for.
+PY_BIN = "python3"
 
 CASES = {
     # name: (n, src_len, dest_len, must_panic)
