@@ -1,12 +1,22 @@
 # Controlled local targets for Black Hat Rust Chapter 5 (web crawler).
 #
-#   sites        static HTML + JS-rendered replicas of quotes.toscrape.com, plus
+#   sites        static HTML + a JS-rendered replica of quotes.toscrape.com, plus
 #                GitHub- and crt.sh-shaped JSON endpoints, all in one process
 #   chromedriver  Selenium standalone Chromium: a real WebDriver endpoint on
 #                :4444 for the fantoccini (browser-driven) spider
 #
-# Run:  docker compose up -d --build
+# Run:  docker compose up -d --force-recreate --build
 # Stop: docker compose down
+#
+# Networking note: the browser runs *inside* the chromedriver container, so it
+# cannot reach the codespace host's 127.0.0.1. Docker's host-gateway shortcut
+# (extra_hosts: host.docker.internal) is not supported by this daemon, so target
+# the sites container by its Compose service name instead:
+#
+#     CRAWLER_QUOTES_BASE=http://sites:8000
+#
+# `sites` resolves on the Compose network from inside the chromedriver
+# container, and needs no published port at all.
 
 services:
   sites:
@@ -14,7 +24,7 @@ services:
       context: ./sites
     ports:
       - "8081:8000"   # quotes, static HTML, paginated
-      - "8082:8000"   # quotes, assembled client-side by JS
+      - "8082:8000"   # quotes, DOM assembled client-side by JS
       - "8097:8001"   # GitHub-shaped public_members JSON
       - "8099:8002"   # crt.sh-shaped entries JSON
     restart: unless-stopped

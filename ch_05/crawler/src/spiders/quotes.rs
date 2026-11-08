@@ -11,6 +11,19 @@ pub struct QuotesSpider {
     webdriver_client: Mutex<Client>,
 }
 
+/// WebDriver endpoint. Overridable so the browser-driven spider can be pointed
+/// at a local chromedriver container instead of a host process.
+fn webdriver_url() -> String {
+    std::env::var("CRAWLER_WEBDRIVER_URL").unwrap_or_else(|_| "http://localhost:4444".to_string())
+}
+
+/// Base URL of the target site. The book hardcodes quotes.toscrape.com, which
+/// cannot be crawled locally; this mirrors it in Docker so the JS-rendered path
+/// can be exercised against a target I control.
+fn site_base() -> String {
+    std::env::var("CRAWLER_QUOTES_BASE").unwrap_or_else(|_| "https://quotes.toscrape.com".to_string())
+}
+
 impl QuotesSpider {
     pub async fn new() -> Result<Self, Error> {
         let mut caps = serde_json::map::Map::new();
@@ -18,7 +31,7 @@ impl QuotesSpider {
         caps.insert("goog:chromeOptions".to_string(), chrome_opts);
         let webdriver_client = ClientBuilder::rustls()
             .capabilities(caps)
-            .connect("http://localhost:4444")
+            .connect(&webdriver_url())
             .await?;
 
         Ok(QuotesSpider {
@@ -42,7 +55,7 @@ impl super::Spider for QuotesSpider {
     }
 
     fn start_urls(&self) -> Vec<String> {
-        vec!["https://quotes.toscrape.com/js".to_string()]
+        vec![format!("{}/js", site_base())]
     }
 
     async fn scrape(&self, url: String) -> Result<(Vec<Self::Item>, Vec<String>), Error> {
@@ -102,7 +115,7 @@ impl QuotesSpider {
         let url = url.trim();
 
         if url.starts_with("/") {
-            return format!("https://quotes.toscrape.com{}", url);
+            return format!("{}{}", site_base(), url);
         }
 
         return url.to_string();
