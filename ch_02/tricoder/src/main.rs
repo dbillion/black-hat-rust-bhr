@@ -33,11 +33,20 @@ fn main() -> Result<(), anyhow::Error> {
 
     // pool.install is required to use our custom threadpool, instead of rayon's default one
     pool.install(|| {
-        let scan_result: Vec<Subdomain> = subdomains::enumerate(&http_client, target)
-            .unwrap()
-            .into_par_iter()
-            .map(ports::scan_ports)
-            .collect();
+        let scan_result: Vec<Subdomain> = match subdomains::enumerate(&http_client, target) {
+            Ok(subdomains) => subdomains
+                .into_par_iter()
+                .map(ports::scan_ports)
+                .collect(),
+            // crt.sh is a free public service with no SLA: it is frequently
+            // unavailable or rate-limited. Report that and stop, rather than
+            // panicking with a JSON decode error from deep inside reqwest.
+            Err(e) => {
+                eprintln!("error: could not enumerate subdomains for {target}: {e}");
+                eprintln!("hint: the certificate transparency source (crt.sh) may be down or rate-limiting you");
+                return;
+            }
+        };
 
         for subdomain in scan_result {
             println!("{}:", &subdomain.domain);
