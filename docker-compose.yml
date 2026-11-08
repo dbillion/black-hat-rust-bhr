@@ -1,0 +1,29 @@
+# Controlled local targets for Black Hat Rust Chapter 5 (web crawler).
+#
+# Services:
+#   quotes-static  static HTML replica of quotes.toscrape.com, paginated -
+#                  exercises the reqwest + select path (cvedetails spider shape)
+#   quotes-js      same DOM but assembled client-side by JavaScript, so it is
+#                  empty in the HTML source - exercises the fantoccini path
+#                  (quotes spider shape, whose start URL is /js)
+#   fixtures       crt.sh- and GitHub-shaped JSON endpoints reused by earlier
+#                  chapters, kept here so one stack serves the whole book run
+#
+# Run:  docker compose up -d --build
+# Stop: docker compose down
+
+services:
+  quotes-static:
+    build: ./sites/quotes-static
+    ports: ["8081:8000"]
+    restart: unless-stopped
+
+  quotes-js:
+    build: ./sites/quotes-js
+    ports: ["8082:8000"]
+    restart: unless-stopped
+
+  fixtures:
+    build: ./sites/fixtures
+    ports: ["8097:8000", "8099:8001"]
+    restart: unless-stopped
