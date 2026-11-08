@@ -1,0 +1,13 @@
+“A quote about testing number 0.”
+by Albert Einstein
+
+“A quote about testing number 1.”
+by J. K. Rowling
+
+“A quote about testing number 2.”
+...
+“A quote about testing number 23.”
+by Marilyn Monroe
+
+
+DONE — 24 quotes extracted, pages 2 and 3 followed, crawl stops on page 4.
