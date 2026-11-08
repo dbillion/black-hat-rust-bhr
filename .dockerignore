@@ -1,0 +1,8 @@
+# Keep the Docker build context (repo root) small. Without this the whole book
+# repo, including its .git, is shipped to the daemon on every build.
+.git
+**/target
+**/Cargo.lock
+**/*.png
+bhr
+tmp
