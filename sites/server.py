@@ -17,8 +17,9 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 QUOTES_PORT = 8000
-GITHUB_PORT = 8097
-CRTSH_PORT = 8099
+QUOTES_JS_PORT = 8000
+GITHUB_PORT = 8001
+CRTSH_PORT = 8002
 
 AUTHORS = ["Albert Einstein", "J. K. Rowling", "Jane Austen", "Marilyn Monroe"]
 PAGE_SIZES = {1: 10, 2: 10, 3: 4}
@@ -175,8 +176,9 @@ def serve(port, handler_cls):
 
 def main():
     sites = [
-        ("quotes-static / quotes-js", QUOTES_PORT, SiteHandler),
-        ("github + crt.sh fixtures", GITHUB_PORT, SiteHandler),
+        ("quotes (static HTML at /, JS-rendered at /js)", QUOTES_PORT, SiteHandler),
+        ("github-shaped public_members", GITHUB_PORT, SiteHandler),
+        ("crt.sh-shaped entries", CRTSH_PORT, SiteHandler),
     ]
     threads = [
         threading.Thread(target=serve, args=(p, h), daemon=True) for _, p, h in sites

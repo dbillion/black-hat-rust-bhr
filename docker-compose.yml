@@ -1,29 +1,27 @@
 # Controlled local targets for Black Hat Rust Chapter 5 (web crawler).
 #
-# Services:
-#   quotes-static  static HTML replica of quotes.toscrape.com, paginated -
-#                  exercises the reqwest + select path (cvedetails spider shape)
-#   quotes-js      same DOM but assembled client-side by JavaScript, so it is
-#                  empty in the HTML source - exercises the fantoccini path
-#                  (quotes spider shape, whose start URL is /js)
-#   fixtures       crt.sh- and GitHub-shaped JSON endpoints reused by earlier
-#                  chapters, kept here so one stack serves the whole book run
+#   sites        static HTML + JS-rendered replicas of quotes.toscrape.com, plus
+#                GitHub- and crt.sh-shaped JSON endpoints, all in one process
+#   chromedriver  Selenium standalone Chromium: a real WebDriver endpoint on
+#                :4444 for the fantoccini (browser-driven) spider
 #
 # Run:  docker compose up -d --build
 # Stop: docker compose down
 
 services:
-  quotes-static:
-    build: ./sites/quotes-static
-    ports: ["8081:8000"]
+  sites:
+    build:
+      context: ./sites
+    ports:
+      - "8081:8000"   # quotes, static HTML, paginated
+      - "8082:8000"   # quotes, assembled client-side by JS
+      - "8097:8001"   # GitHub-shaped public_members JSON
+      - "8099:8002"   # crt.sh-shaped entries JSON
     restart: unless-stopped
 
-  quotes-js:
-    build: ./sites/quotes-js
-    ports: ["8082:8000"]
-    restart: unless-stopped
-
-  fixtures:
-    build: ./sites/fixtures
-    ports: ["8097:8000", "8099:8001"]
+  chromedriver:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 1gb
+    ports:
+      - "4444:4444"
     restart: unless-stopped
