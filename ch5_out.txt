@@ -1,0 +1,17 @@
+$ CRAWLER_GITHUB_BASE=http://127.0.0.1:8097/public_members \\
+>   cargo run --release -- run --spider github
+
+user1_0, https://github.com/user1_0, https://avatars.githubusercontent.com/u/10?v=4
+user1_1, https://github.com/user1_1, https://avatars.githubusercontent.com/u/11?v=4
+user1_2, https://github.com/user1_2, https://avatars.githubusercontent.com/u/12?v=4
+    ...
+user3_6, https://github.com/user3_6, https://avatars.githubusercontent.com/u/36?v=4
+
+[2026-11-08T18:31:31Z DEBUG crawler::crawler] queueing: http://127.0.0.1:8097/public_members?per_page=100&page=2
+[2026-11-08T18:31:31Z DEBUG crawler::crawler] queueing: http://127.0.0.1:8097/public_members?per_page=100&page=3
+[2026-11-08T18:31:32Z INFO  crawler::crawler] crawler: control loop exited
+
+items crawled:  207
+unique logins:  207
+pages queued:   2
+fixture total:  207 (100 + 100 + 7)
