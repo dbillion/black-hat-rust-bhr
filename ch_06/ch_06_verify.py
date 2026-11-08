@@ -54,7 +54,7 @@ def build_and_run(name, n, src_len, dest_len):
 fn main() {{
     let src = [{", ".join(str(i % 256) for i in range(src_len))}u8];
     let mut dest = [0u8; {dest_len}];
-    fuzzing::vulnerable_memcopy(&mut dest, {src_names}, {n});
+    vulnerable_memcopy(&mut dest, {src_names}, {n});
     println!("REACHED_END");
 }}
 """
@@ -62,6 +62,9 @@ fn main() {{
     with tempfile.TemporaryDirectory() as d:
         probe = Path(d) / "probe.rs"
         out = Path(d) / "probe"
+        # lib.rs is *inlined* (not depended on as a crate), so the free function
+        # is in scope directly; the book's fuzz target calls it as
+        # fuzzing::vulnerable_memcopy because there it is a separate crate.
         probe.write_text(lib + body)
         compile_run = subprocess.run(
             ["rustc", "--edition", "2021", "-O", str(probe), "-o", str(out)],
