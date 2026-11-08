@@ -1,0 +1,15 @@
+$ TRICODER_CRTSH_URL=http://127.0.0.1:8099 \
+>   TRICODER_WEBARCHIVE_URL=http://127.0.0.1:8099 \
+>   ./target/release/tricoder scan localhost
+
+[2026-11-08T18:05:54Z INFO  tricoder::cli] Scanning: localhost
+[2026-11-08T18:05:54Z INFO  tricoder::cli] Found 1 domains
+[2026-11-08T18:05:54Z INFO  tricoder::cli] Scannig ports for localhost
+localhost
+    2000
+    8081
+---------------------- Vulnerabilities ----------------------
+DotEnvFileDisclosure("http://localhost:8081/.env")
+GitConfigDisclosure("http://localhost:8081/.git/config")
+GitHeadDisclosure("http://localhost:8081/.git/HEAD")
+[2026-11-08T18:05:55Z INFO  tricoder::cli] Scan completed in 80.951833ms
