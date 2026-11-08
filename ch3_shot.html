@@ -1,0 +1,35 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 3: Going full speed with async — tricoder</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 3: Going full speed with async — tricoder</div>
+<div class="s">Rust 1.99.1 · tokio · 4 cores/16 GB codespace · controlled local fixture</div>
+<pre>$ cargo build --release --manifest-path ch_03/tricoder/Cargo.toml
+   Compiling tricoder v0.1.0
+    Finished `release` profile [optimized] target(s) in 43.96s
+
+$ TRICODER_CRTSH_URL=http://127.0.0.1:8099 ./ch_03/tricoder/target/release/tricoder localhost
+Scan completed in 14.008279ms
+localhost:
+    2000: open
+    3306: open
+    8080: open
+    8443: open
+    9999: open
+    5432: open
+
+</pre>
+</div></body></html>

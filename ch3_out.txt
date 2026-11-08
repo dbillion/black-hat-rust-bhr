@@ -1,0 +1,14 @@
+$ cargo build --release --manifest-path ch_03/tricoder/Cargo.toml
+   Compiling tricoder v0.1.0
+    Finished `release` profile [optimized] target(s) in 43.96s
+
+$ TRICODER_CRTSH_URL=http://127.0.0.1:8099 ./ch_03/tricoder/target/release/tricoder localhost
+Scan completed in 14.008279ms
+localhost:
+    2000: open
+    3306: open
+    8080: open
+    8443: open
+    9999: open
+    5432: open
+
