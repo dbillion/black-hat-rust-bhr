@@ -56,7 +56,7 @@ def build_and_run(name, n, src_len, dest_len):
 fn main() {{
     let src = [{", ".join(str(i % 256) for i in range(src_len))}u8];
     let mut dest = [0u8; {dest_len}];
-    vulnerable_memcopy(&mut dest, {src_names}, {n});
+    vulnerable_memcopy(&mut dest, &src, {n});
     println!("REACHED_END");
 }}
 """
