@@ -49,7 +49,9 @@ CASES = {
 
 
 def build_and_run(name, n, src_len, dest_len):
-    src_names = "src" if src_len else "&[]"
+    # always pass a real &[u8]; an empty one for the zero-length case so types
+    # match the signature (a raw &[] has no known element type).
+    src_names = "src"
     body = f"""
 fn main() {{
     let src = [{", ".join(str(i % 256) for i in range(src_len))}u8];
