@@ -1,0 +1,42 @@
+$ tricoder modules
+Subdomains modules
+   subdomains/crtsh: Use crt.sh/ to find subdomains
+   subdomains/webarchive: Use web.archive.org to find subdomains
+HTTP modules
+    http/ds_store: Check if a .DS_Store file disclosure
+    http/dotenv: Check if a .env file disclosure
+    http/directory_listing: Check for enabled directory listing, which often leak information
+    http/traefik_dashboard_unauthenticated_access: Check for Traefik Dashboard Unauthenticated Access
+    http/prometheus_dashboard_unauthenticated_access: Check for Prometheus Dashboard Unauthenticated Access
+    http/kibana_unauthenticated_access: Check for Kibana Unauthenticated Access
+    http/gitlab_open_registration: Check if the GitLab instance is open to registrations
+    http/git_head_disclosure: Check for .git/HEAD file disclosure
+    http/git_directory_disclosure: Check for .git/ directory disclosure
+    http/git_config_disclosure: Check for .git/config file disclosure
+    http/etc_unauthenticated_access: Check for CoreOS' etcd Unauthenticated Access
+    http/cve_2017_9506: Check for CVE-2017-9506 (SSRF)
+    http/cve_2018_7600: Check for CVE-2018-7600 (a.k.a. Drupalgeddon2)
+    http/elasticsearch_unauthenticated_access: Check for elasticsearch Unauthenticated Access
+
+$ tricoder scan example.com
+[2026-11-08T17:46:49Z INFO  tricoder::cli] Scanning: example.com
+[2026-11-08T17:49:04Z ERROR tricoder::cli] subdomains/webarchive: Reqwest: error sending request for url (https://web.archive.org/cdx/search/cdx?matchType=domain&fl=original&output=json&collapse=urlkey&url=example.com): error trying to connect: tcp connect error: Connection timed out (os error 110)
+[2026-11-08T17:49:04Z INFO  tricoder::cli] Found 10 domains
+[2026-11-08T17:49:04Z INFO  tricoder::cli] Scannig ports for m.testexample.com
+[2026-11-08T17:49:10Z INFO  tricoder::cli] Scannig ports for example.com
+[2026-11-08T17:49:13Z INFO  tricoder::cli] Scannig ports for www.example.com
+m.testexample.com
+    80
+    443
+example.com
+    80
+    8080
+    443
+    8443
+www.example.com
+    80
+    443
+    8080
+    8443
+---------------------- Vulnerabilities ----------------------
+[2026-11-08T17:49:36Z INFO  tricoder::cli] Scan completed in 166.785161763s
