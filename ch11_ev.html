@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 11 verified: E2E-encrypted RAT round trip works</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 11 verified: E2E-encrypted RAT round trip works</div>
+<div class="s">Rust 1.99.1 · ed25519 + x25519 + ChaCha20-Poly1305 · postgres:13 local</div>
+<pre>Chapter 11: encrypted RAT -- real crypto, and it is NOT TLS
+
+$ cargo build --release -p server -p agent -p client      # 1m48s
+2478672 agent    4596600 client    5870944 server
+
+grep -n &#x27;bind&#x27; server/src/main.rs
+35:  warp::serve(routes).bind_with_graceful_shutdown(([127, 0, 0, 1], port), ...
+    ^ plain HTTP on loopback. No TlsServer, no cert, no --tls flag in the chapter.
+
+$ agent                            # first run: generates its own keys
+$ curl -s localhost:8080/api/agents
+{&quot;data&quot;:{&quot;agents&quot;:[{&quot;id&quot;:&quot;ec01b810-a010-4ba4-9da9-409ff405b4aa&quot;,
+  &quot;created_at&quot;:&quot;2026-11-09T04:19:23.210917Z&quot;,
+  &quot;last_seen_at&quot;:&quot;2026-11-09T04:19:26.228944Z&quot;,
+  &quot;identity_public_key&quot;:[204,33,196,200,221,24,98,155,...],
+  &quot;public_prekey&quot;:[231,135,140,245,132,45,101,22,...],
+  &quot;public_prekey_signature&quot;:[216,162,123,140,...]}]}}
+
+$ client agents
+| ec01b810-... | zCHEyN0YYpuE3jpOF1mSUpqeLoYsx2XC6ST/N/MYc48= | 54eM9YQtZRYNRawekSbQ+vTRrKrs0EoXLS7whBXpe2Q= |
+                  agent&#x27;s ed25519 identity key           x25519 prekey
+
+$ client exec -a ec01b810-... &#x27;hostname&#x27;
+codespaces-3d04a9                 &lt;- decrypted by the client
+$ client exec -a ec01b810-... &#x27;id -un&#x27;
+codespace
+
+DEFECT 1: CLIENT_IDENTITY_PUBLIC_KEY is required but defaults to empty
+  server/src/config.rs:  .ok().unwrap_or(String::new())
+  -&gt; base64::decode(&quot;&quot;) OK -&gt; ed25519 from_bytes(&amp;[]) -&gt; &quot;expected length 32
+     for simple format, found 0&quot;. Server dies &quot;Error: Internal error&quot;.
+  DATABASE_URL four lines above does it right (named NotFound error).
+
+DEFECT 2: env.example&#x27;s key does not match the client&#x27;s private key
+  derived from IDENTITY_PRIVATE_KEY = xQ6gstFLtTbDC06LDb5dAQap+...  (matches agent)
+  env.example says                dFa0knTlWODvELy59rzMEvITKxcFj984R28T/K3r6tI=  (stale)
+  =&gt; the README&#x27;s own &quot;cp env.example .env&quot; gives the server a key the agent rejects.
+</pre>
+</div></body></html>

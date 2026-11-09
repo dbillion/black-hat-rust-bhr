@@ -1,0 +1,37 @@
+Chapter 11: encrypted RAT -- real crypto, and it is NOT TLS
+
+$ cargo build --release -p server -p agent -p client      # 1m48s
+2478672 agent    4596600 client    5870944 server
+
+grep -n 'bind' server/src/main.rs
+35:  warp::serve(routes).bind_with_graceful_shutdown(([127, 0, 0, 1], port), ...
+    ^ plain HTTP on loopback. No TlsServer, no cert, no --tls flag in the chapter.
+
+$ agent                            # first run: generates its own keys
+$ curl -s localhost:8080/api/agents
+{"data":{"agents":[{"id":"ec01b810-a010-4ba4-9da9-409ff405b4aa",
+  "created_at":"2026-11-09T04:19:23.210917Z",
+  "last_seen_at":"2026-11-09T04:19:26.228944Z",
+  "identity_public_key":[204,33,196,200,221,24,98,155,...],
+  "public_prekey":[231,135,140,245,132,45,101,22,...],
+  "public_prekey_signature":[216,162,123,140,...]}]}}
+
+$ client agents
+| ec01b810-... | zCHEyN0YYpuE3jpOF1mSUpqeLoYsx2XC6ST/N/MYc48= | 54eM9YQtZRYNRawekSbQ+vTRrKrs0EoXLS7whBXpe2Q= |
+                  agent's ed25519 identity key           x25519 prekey
+
+$ client exec -a ec01b810-... 'hostname'
+codespaces-3d04a9                 <- decrypted by the client
+$ client exec -a ec01b810-... 'id -un'
+codespace
+
+DEFECT 1: CLIENT_IDENTITY_PUBLIC_KEY is required but defaults to empty
+  server/src/config.rs:  .ok().unwrap_or(String::new())
+  -> base64::decode("") OK -> ed25519 from_bytes(&[]) -> "expected length 32
+     for simple format, found 0". Server dies "Error: Internal error".
+  DATABASE_URL four lines above does it right (named NotFound error).
+
+DEFECT 2: env.example's key does not match the client's private key
+  derived from IDENTITY_PRIVATE_KEY = xQ6gstFLtTbDC06LDb5dAQap+...  (matches agent)
+  env.example says                dFa0knTlWODvELy59rzMEvITKxcFj984R28T/K3r6tI=  (stale)
+  => the README's own "cp env.example .env" gives the server a key the agent rejects.
