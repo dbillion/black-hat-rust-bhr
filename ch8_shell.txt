@@ -1,0 +1,21 @@
+Chapter 8: shell shellcode - execve("/bin/sh") works
+
+$ cd ch_08/shell && cargo build --release
+    Finished `release` profile [optimized]     # 2 warnings (dead code)
+$ readelf -h target/release/shell | grep -E 'Type|Entry'
+  Type:   EXEC (Executable file)
+  Entry:  0x400000
+
+$ echo 'echo SHELLCODE_SPAWNED_AS: \$(id -un); exit' | ./target/release/shell
+SHELLCODE_SPAWNED_AS: codespace
+SHELL_EXIT=0
+
+The shellcode makes one syscall: execve("/bin/sh", argv, NULL).
+It replaces the process with a real shell -- no network, no listener,
+no file writes, no fork. That is contained by design, and the
+container run bounds what the spawned shell can touch.
+
+$ sudo docker run --rm --network none --user victim bhr-ch8-shell
+    (piped: echo SHELLCODE_SPAWNED_AS: \$(id -un); exit)
+SHELLCODE_SPAWNED_AS: victim
+Container run: --network none, no privileged, no host mount, non-root victim.
