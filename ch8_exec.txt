@@ -1,0 +1,39 @@
+Chapter 8: shellcode fully working - direct binary AND executor
+
+$ cd ch_08 && rm -rf hello_world/target executor/target shellcode.bin
+$ make hello_world
+$ xxd -l 8 shellcode.bin
+00000000: 488d 3513 0000 006a            <- lea rsi,[rip+0x13] : CODE LEADS
+$ ./hello_world/target/release/hello_world
+hello world
+DIRECT_EXIT=0
+
+$ make execute
+     Running `target/debug/executor`
+hello world
+EXEC_STATUS=0
+
+BEFORE the fix, the same executor printed:
+    Segmentation fault (core dumped)      exit 139
+
+Root cause (two defects, fixed together):
+
+1. shellcode.ld opened `. = ALIGN(16)`, starting the address counter at 0, so
+   the first LOAD segment sat at vaddr 0. Linux refuses to map below
+   vm.mmap_min_addr (65536) -> execve = -1 EPERM before _start ran.
+   Fix: . = 0x400000;
+
+2. objcopy -O binary dumps from the lowest VMA, and ld's default
+   -z separate-code put read-only data in its own LOWER-addressed segment.
+   So shellcode.bin began with "hello world\n" (ascii) and the executor
+   executed string bytes as instructions -> SIGSEGV.
+   Fix: -Wl,-z,noseparate-code (one segment) AND collect
+        *(.rodata .rodata.*) after *(.text._start) in the linker script.
+        The bare *(.rodata) glob never matched Rust's actual
+        .rodata..Lanon.<hash>.0 section name.
+
+$ readelf -h hello_world/target/release/hello_world | grep Entry
+  Entry point address: 0x400064
+
+ch_12 verified too: make hello_world_x86_64_docker
+  -> blob leads 48 8d 35, executor prints "hello world", exit 0
