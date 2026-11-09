@@ -21,6 +21,8 @@ echo "=== build ==="
 docker build -q -t bhr-ch13-worm targets/ch_13-worm
 
 echo "=== run (network none, no caps, no new privs, no mounts) ==="
+# SINGLE-LINE script, no echo statements between sshd and the agent. This is
+# deliberate and load-bearing -- see the NOTE ON FLAKINESS block in FINDINGS.
 docker run -d \
     --name "$NAME" \
     --network none \
@@ -29,26 +31,10 @@ docker run -d \
     --pids-limit 256 \
     --entrypoint bash \
     bhr-ch13-worm \
-    -c '
-    /usr/sbin/sshd
-    sleep 8
-    cd /opt/lab
-    echo "=== sshd up on 127.0.0.1:22 ==="
-    echo "=== uname -a on the target ==="
-    uname -a
-    echo "=== running the worm against 127.0.0.1:22 ==="
-    ./agent 127.0.0.1:22
-    echo "=== WORM_EXIT=$? ==="
-    echo "=== what landed in /tmp (the uploaded agent) ==="
-    ls -la /tmp
-    echo "=== data dir (install() + bundle extraction) ==="
-    ls -la /root/.local/share/bhr_ch13 2>/dev/null
-    echo "=== agent processes ==="
-    ps -eo pid,args | grep "[a]gent" || echo "(none besides this shell)"
-    '
+    -c '/usr/sbin/sshd; sleep 8; cd /opt/lab && ./agent 127.0.0.1:22; sleep 15'
 
 echo "=== waiting for the spread to finish ==="
-sleep 35
+sleep 30
 docker logs "$NAME" 2>&1 || true
 
 echo "=== /tmp inside the container (independent confirmation) ==="
