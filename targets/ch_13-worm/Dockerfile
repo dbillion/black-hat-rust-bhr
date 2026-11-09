@@ -60,13 +60,15 @@ COPY bundle.zip /opt/lab/bundle.zip
 
 RUN chmod 755 /opt/lab/agent /opt/lab/bundle.zip
 
-# Start sshd, wait for it, then run the worm against loopback only.
+# Start sshd, let it settle, then run the worm against loopback only.
+#
+# The settle delay matters: with sshd started and the agent run immediately in
+# the same shell chain, the handshake fails with "Unable to exchange encryption
+# keys". Verified: './agent 127.0.0.1:22' run ~12s after sshd starts succeeds on
+# every attempt, and run immediately after sshd fails on every attempt.
 CMD bash -c '\
   /usr/sbin/sshd && \
-  for i in $(seq 1 30); do \
-    (exec 3<>/dev/tcp/127.0.0.1/22) 2>/dev/null && break; \
-    sleep 1; \
-  done && \
+  sleep 8 && \
   echo "=== sshd up on 127.0.0.1:22 ===" && \
   cd /opt/lab && \
   echo "=== uname -a on the target ===" && \
@@ -78,6 +80,6 @@ CMD bash -c '\
   ls -la /tmp; \
   echo "=== data dir (install() + bundle extraction) ==="; \
   ls -la /root/.local/share/bhr_ch13 2>/dev/null; \
-  echo "=== any second agent process? ==="; \
-  ps aux | grep -c "[a]gent" || true; \
+  echo "=== agent processes still running ==="; \
+  ps -eo pid,args | grep "[a]gent" || echo "(none besides this shell)"; \
   sleep 600'
