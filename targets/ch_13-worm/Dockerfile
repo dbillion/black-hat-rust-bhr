@@ -22,7 +22,10 @@
 # The wordlist is the book's, unmodified -- the point of the exercise is that
 # the worm works, not that the wordlist is effective.
 
-FROM ubuntu:20.04
+FROM ubuntu:24.04
+# Not 20.04: the agent is built on the codespace, whose glibc is 2.38, and a
+# 20.04 image (glibc 2.31) cannot load it. musl static linking was tried first
+# and fails on ssh2's vendored libssh2/openssl.
 
 RUN apt-get update -qq && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y -qq openssh-server sudo >/dev/null 2>&1 && \
