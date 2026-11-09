@@ -106,6 +106,17 @@ CHAPTERS = [
      "static page.\n\n"
      "Not verified: the Yew WASM webapp (wasm-pack absent), and evil_twin (needs "
      "a Pi radio in AP mode)."),
+
+    ("Chapter 10 — Remote Access Trojan",
+     "ch_10/FINDINGS.md",
+     ["ch_10_rat.png"],
+     "The full C2 loop was exercised end-to-end against a local Postgres: the "
+     "agent self-registers, polls every second, the client dispatches a command "
+     "through the server, the agent executes it, and the output is stored and "
+     "retrievable. The beacon is proven by `last_seen_at` advancing across polls "
+     "rather than by a single request.\n\n"
+     "The agent executes any command it is handed, as the user running it, with "
+     "no allowlist and no sandbox. That is the design and the lesson."),
 ]
 
 
