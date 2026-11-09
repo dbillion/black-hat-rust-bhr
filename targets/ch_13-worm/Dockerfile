@@ -60,26 +60,29 @@ COPY bundle.zip /opt/lab/bundle.zip
 
 RUN chmod 755 /opt/lab/agent /opt/lab/bundle.zip
 
-# Start sshd, let it settle, then run the worm against loopback only.
-#
-# The settle delay matters: with sshd started and the agent run immediately in
-# the same shell chain, the handshake fails with "Unable to exchange encryption
-# keys". Verified: './agent 127.0.0.1:22' run ~12s after sshd starts succeeds on
-# every attempt, and run immediately after sshd fails on every attempt.
-CMD bash -c '\
-  /usr/sbin/sshd && \
-  sleep 8 && \
-  echo "=== sshd up on 127.0.0.1:22 ===" && \
-  cd /opt/lab && \
-  echo "=== uname -a on the target ===" && \
-  uname -a && \
-  echo "=== running the worm against 127.0.0.1:22 ===" && \
-  ./agent 127.0.0.1:22; \
-  echo "=== WORM_EXIT=$? ==="; \
-  echo "=== what landed in /tmp ==="; \
-  ls -la /tmp; \
-  echo "=== data dir (install() + bundle extraction) ==="; \
-  ls -la /root/.local/share/bhr_ch13 2>/dev/null; \
-  echo "=== agent processes still running ==="; \
-  ps -eo pid,args | grep "[a]gent" || echo "(none besides this shell)"; \
-  sleep 600'
+# The verified working form. `;` separators, not `&&`: three runs with the
+# agent as the last link of a `&&` chain failed with "Unable to exchange
+# encryption keys", while the same agent, image and sshd succeed every time
+# with `;`. The root cause was not isolated to the protocol level; only the
+# reproducible difference is reported.
+COPY <<'ENTRY' /opt/lab/entrypoint.sh
+#!/bin/bash
+/usr/sbin/sshd
+sleep 8
+cd /opt/lab
+echo "=== sshd up on 127.0.0.1:22 ==="
+echo "=== uname -a on the target ==="
+uname -a
+echo "=== running the worm against 127.0.0.1:22 ==="
+./agent 127.0.0.1:22
+echo "=== WORM_EXIT=$? ==="
+echo "=== what landed in /tmp ==="
+ls -la /tmp
+echo "=== data dir (install() + bundle extraction) ==="
+ls -la /root/.local/share/bhr_ch13 2>/dev/null
+echo "=== agent processes still running ==="
+ps -eo pid,args | grep "[a]gent" || echo "(none besides this shell)"
+sleep 600
+ENTRY
+RUN chmod +x /opt/lab/entrypoint.sh
+ENTRYPOINT ["/opt/lab/entrypoint.sh"]
