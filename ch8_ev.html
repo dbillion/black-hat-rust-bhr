@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 8: shellcode builds, execve rejects it</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 8: shellcode builds, execve rejects it</div>
+<div class="s">Rust 1.99.1 · Linux x86-64 codespace · isolated Docker container</div>
+<pre>Chapter 8: shellcode - build succeeds, execve rejects it
+
+$ cargo build --release            # in ch_08/hello_world
+    Finished `release` profile     # 21.23s, no warnings
+$ ./target/release/hello_world
+Segmentation fault (core dumped)   # exit 139, reproducible
+
+Control: a plain gcc C binary in the same directory runs fine (exit 0).
+         seccomp: 0, apparmor: unconfined, NoNewPrivs: 0
+
+$ strace ./hw
+execve(&quot;./hw&quot;, ...) = -1 EPERM (Operation not permitted)
++++ killed by SIGSEGV +++
+
+The kernel refuses the image before any instruction runs.
+
+$ readelf -h hello_world
+  Type:   EXEC (Executable file)
+  Entry:  0x64
+
+$ readelf -l hello_world
+  LOAD   0x1000  vaddr 0x0    filesz 0x64  R
+  LOAD   0x1064  vaddr 0x64   filesz 0x1a  R E
+
+The first LOAD segment sits at vaddr 0.
+shellcode.ld starts with `. = ALIGN(16)`, so the address counter begins at 0.
+_start (0x64) reaches its string near 0x35 - inside that unmappable segment.
+</pre>
+</div></body></html>

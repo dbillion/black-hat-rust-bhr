@@ -1,0 +1,27 @@
+Chapter 8: shellcode - build succeeds, execve rejects it
+
+$ cargo build --release            # in ch_08/hello_world
+    Finished `release` profile     # 21.23s, no warnings
+$ ./target/release/hello_world
+Segmentation fault (core dumped)   # exit 139, reproducible
+
+Control: a plain gcc C binary in the same directory runs fine (exit 0).
+         seccomp: 0, apparmor: unconfined, NoNewPrivs: 0
+
+$ strace ./hw
+execve("./hw", ...) = -1 EPERM (Operation not permitted)
++++ killed by SIGSEGV +++
+
+The kernel refuses the image before any instruction runs.
+
+$ readelf -h hello_world
+  Type:   EXEC (Executable file)
+  Entry:  0x64
+
+$ readelf -l hello_world
+  LOAD   0x1000  vaddr 0x0    filesz 0x64  R
+  LOAD   0x1064  vaddr 0x64   filesz 0x1a  R E
+
+The first LOAD segment sits at vaddr 0.
+shellcode.ld starts with `. = ALIGN(16)`, so the address counter begins at 0.
+_start (0x64) reaches its string near 0x35 - inside that unmappable segment.
