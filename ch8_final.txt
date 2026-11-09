@@ -1,0 +1,26 @@
+Chapter 8: shellcode - FIXED and verified
+
+$ cd ch_08 && make hello_world
+$ ./hello_world/target/release/hello_world
+hello world
+EXIT=0
+
+Before the fix, the same binary:
+$ strace ./hw
+execve("./hw", ...) = -1 EPERM (Operation not permitted)
++++ killed by SIGSEGV +++
+
+Cause: shellcode.ld opened with . = ALIGN(16), so the first LOAD segment
+landed at virtual address 0. The kernel refuses to map below
+vm.mmap_min_addr (65536), so execve failed before _start ran.
+
+Fix: . = 0x400000;   (any base above mmap_min_addr works)
+
+Applied to both ch_08/shellcode.ld and ch_12/shellcode/hello_world/shellcode.ld,
+which are byte-identical duplicates.
+
+$ readelf -h hello_world | grep Entry
+  Entry point address: 0x400064
+
+Still open: `make execute` fails. objcopy -O binary emits the string data
+before the code, and the executor jumps to byte 0 of the blob.

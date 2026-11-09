@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 8: shellcode fixed - hello world prints, exit 0</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 8: shellcode fixed - hello world prints, exit 0</div>
+<div class="s">Rust 1.99.1 · Linux x86_64 · vm.mmap_min_addr=65536 root cause</div>
+<pre>Chapter 8: shellcode - FIXED and verified
+
+$ cd ch_08 &amp;&amp; make hello_world
+$ ./hello_world/target/release/hello_world
+hello world
+EXIT=0
+
+Before the fix, the same binary:
+$ strace ./hw
+execve(&quot;./hw&quot;, ...) = -1 EPERM (Operation not permitted)
++++ killed by SIGSEGV +++
+
+Cause: shellcode.ld opened with . = ALIGN(16), so the first LOAD segment
+landed at virtual address 0. The kernel refuses to map below
+vm.mmap_min_addr (65536), so execve failed before _start ran.
+
+Fix: . = 0x400000;   (any base above mmap_min_addr works)
+
+Applied to both ch_08/shellcode.ld and ch_12/shellcode/hello_world/shellcode.ld,
+which are byte-identical duplicates.
+
+$ readelf -h hello_world | grep Entry
+  Entry point address: 0x400064
+
+Still open: `make execute` fails. objcopy -O binary emits the string data
+before the code, and the executor jumps to byte 0 of the blob.
+</pre>
+</div></body></html>
