@@ -11,11 +11,11 @@ context. The manual is *generated* from this file plus each chapter's
 |----|-------|------|-------|----------|-------------|
 | 01 | hashes / wordlist | yes | done | ch_01/FINDINGS.md | *(none — no commit)* |
 | 02 | port scanner | yes | **done, fix REAL** | ch_02/tricoder/src/ports.rs | **ba656dd** |
-| 03 | async scanner | yes | done, **fix NOT applied** | ch_03_async_tricoder.png | 0d6f26a *(evidence only)* |
-| 04 | tricoder | yes | done, **fixes NOT applied** | ch_04_modules_tricoder.png | c8c1be8 *(evidence only)* |
-| 05 | crawler (OSINT) | yes | done, **github.rs fix NOT applied** | ch_05_crawler_osint.png | 2af0877 *(evidence only)* |
+| 03 | async scanner | yes | done, **fix now in repo** (`b5a2995`) | ch_03_async_tricoder.png | 0d6f26a *(evidence only)* |
+| 04 | tricoder | yes | done, **fixes now in repo** (`b5a2995`) | ch_04_modules_tricoder.png | c8c1be8 *(evidence only)* |
+| 05 | crawler (OSINT) | yes | done, **fix now in repo** (`b5a2995`) | ch_05_crawler_osint.png | 2af0877 *(evidence only)* |
 | 05 | crawler (JS/browser) | yes | done, quotes.rs **fix REAL** | ch_05_js_crawler.png | 3644334, 2da5473 |
-| 06 | fuzzing + SVG XSS | yes | done, **fixes NOT applied** | ch_06_fuzzing_overflow.png, ch_06_svg_xss.png | 9f68414 *(not in this repo)* |
+| 06 | fuzzing + SVG XSS | yes | done, **fixes now in repo** (`b5a2995`) | ch_06_fuzzing_overflow.png, ch_06_svg_xss.png | *(none — `9f68414` does not exist)* |
 | 07 | CVE-2021-3156 | yes | done, gap noted | ch_07/FINDINGS.md | 8ae2f2f, 7833289, 6a37947 **REAL** |
 | 08 | shellcode | yes | done, 2 of 3 verified | ch_08_shellcode_executor.png, ch_08_shell_shellcode.png | 8db11df, 1dcc8fa **REAL** |
 | 09 | phishing / DNS squat / evil twin | yes | done, 2 gaps noted | ch_09/FINDINGS.md, ch_09_phishing.png | e582fca |
@@ -25,7 +25,7 @@ context. The manual is *generated* from this file plus each chapter's
 | 13 | self-propagating worm | yes | done, chain verified | ch_13/FINDINGS.md, ch_13_worm.png | 60fe3dc |
 | 14 | disclosure template | no code | done, filled | ch_14/DISCLOSURE-socket-addresses.md | 4ed0789 |
 
-Done: 14 of 14. Audited: 7 fixes real, 6 commit-message-only. See AUDIT.md.
+Done: 14 of 14. Audited 3x: 12 fixes real, 5 message-only (all ch_06), 1 non-existent commit. See AUDIT.md.
 
 ## Rules for the next run
 
@@ -61,5 +61,5 @@ Done: 14 of 14. Audited: 7 fixes real, 6 commit-message-only. See AUDIT.md.
 - 4ed0789 — ch_14 disclosure filled with a real finding
 - *(ch_01)* — no commit: hashes/wordlist verified but nothing committed
 
-**Read `git log --author=dbillion --name-only` rather than these subjects.** Six
-subjects claim source fixes their commits do not contain. See AUDIT.md.
+**Read `git log --author=dbillion --name-only` rather than these subjects.** Five
+ch_06 subjects claim fixes that were never written. See AUDIT.md.

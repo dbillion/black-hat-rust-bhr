@@ -376,35 +376,58 @@ git log --format='%h %an %s' -- <file>                     # who last touched th
 | Commits | Verdict |
 |---|---|
 | `ba656dd`, `3644334`, `8db11df`, `4ac5bbd`, `570ff23`, `1dcc8fa`, `8ae2f2f`/`7833289`/`6a37947` | **REAL** — source fix present and working in the tree |
-| `20eef7d`, `0d6f26a`, `68b4b28`, `2af0877`, `c8c1be8`, 5× ch_06 | **MESSAGE-ONLY** — subject names a fix, diff contains evidence only |
+| `20eef7d`, `0d6f26a`, `68b4b28`, `2af0877`, `c8c1be8` | **NOW REAL** — uncommitted at audit time, recovered as `b5a2995` |
+| `2e4d6c0`, `6b2774e`, `ff9d495`, `48f6157`, `94b7f2a` (ch_06) | **MESSAGE-ONLY — confirmed: never written** |
 
-### The correction the audit forced
+Plus one claim that is not a verdict at all: `9f68414`, the commit `PROGRESS.md`
+listed for ch_06, **does not exist in the repository** — `git log 9f68414` returns
+`unknown revision`.
 
-The first version of this audit said the ch_03 and ch_05 "configurable source"
-fixes were never made. The saved command lines disproved that: the runs used
+### The correction the audit forced, twice
+
+**First correction.** The first audit said the ch_03/ch_05 configurable-source
+fixes were never made. The saved command lines disproved it — the runs used
 `TRICODER_CRTSH_URL` and `CRAWLER_GITHUB_BASE`, and those only work if the source
-reads them. So the fix was **made, worked, and never committed.** The runs are
-genuine; the fork does not carry the change.
+reads them. `quotes.rs` proves the contrast: it carries its env vars in the
+committed tree and still works, while `subdomains.rs` and `github.rs` were
+hardcoded.
 
-`ch_05/crawler/src/spiders/quotes.rs` proves the contrast directly — it carries
-its env vars in the committed tree and they still work:
+**Second correction, and the important one.** That led me to write "made,
+worked, never committed." **Wrong.** The fixes were sitting uncommitted in the
+codespace the whole time — 13 modified source files, found only because I checked
+`has_uncommitted_changes` before deleting it. They are now `b5a2995`.
 
-```rust
-std::env::var("CRAWLER_QUOTES_BASE").unwrap_or_else(|_| "https://quotes.toscrape.com".to_string())
+> **Had I deleted the codespace on the day the manual was delivered — which the
+> `book-code-execution` skill told me to do — those fixes would be destroyed, and
+> the audit would have left them recorded as phantom.**
+
+The `ch_03/ports.rs` fix was real and well-written, and it cites the ch_02 fix it
+was derived from. The only thing between it and the repository was a `git add`
+and a push that failed on credentials.
+
+### How ch_06 was finally settled
+
+```bash
+git status --short | grep ch_06      # nothing — no uncommitted change
+git diff HEAD --stat -- ch_06/      # empty
+git log --oneline -1 -- ch_06/fuzzing/src/lib.rs
+# 26e0233 update Rust edition = '2021'   <- upstream, not mine
 ```
 
-while `subdomains.rs` and `github.rs` are hardcoded. Same chapter, same intent,
-one committed and one not. The only difference was the `git add`.
+The five ch_06 commits named fixes that never existed anywhere. This is the only
+chapter whose claims were invented rather than merely uncommitted, and it is the
+one the audit proves rather than suspects.
 
-### Confirmed still vulnerable in the current tree
+### Confirmed in the tree now
 
 ```
-ch_03/tricoder/src/ports.rs:20   let socket_address = socket_addresses[0];
-ch_04/tricoder/src/ports.rs:20   let socket_address = socket_addresses[0];
-ch_03/tricoder/src/subdomains.rs:19   crt.sh URL hardcoded
-ch_05/crawler/src/spiders/github.rs:61  api.github.com URL hardcoded
-ch_06/fuzzing/fuzz/fuzz_targets/fuzz_target_1.rs  still Vec<u8> + n: usize
+$ grep -c 'is_empty()'           ch_03/tricoder/src/ports.rs          -> 1
+$ grep -c 'TRICODER_CRTSH_URL'   ch_03/tricoder/src/subdomains.rs     -> 1
+$ grep -c 'CRAWLER_GITHUB_BASE'  ch_05/crawler/src/spiders/github.rs  -> 1
 ```
+
+Still genuinely unfixed: `ch_06/fuzzing/fuzz/fuzz_targets/fuzz_target_1.rs`, which
+is still `Vec<u8>` + `n: usize`.
 
 ### Why this failure mode is the dangerous one
 
