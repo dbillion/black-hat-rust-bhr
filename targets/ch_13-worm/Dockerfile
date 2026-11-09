@@ -46,7 +46,7 @@ RUN mkdir -p /run/sshd /root/.ssh && \
     echo '# Legacy algorithms: ssh2/libssh2 0.9 (2021) offers only these, and' >> /etc/ssh/sshd_config && \
     echo '# OpenSSH 9.6 (24.04) disables them by default, so the handshake dies' >> /etc/ssh/sshd_config && \
     echo '# with "Unable to exchange encryption keys". This is itself a finding.' >> /etc/ssh/sshd_config && \
-    echo 'KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,ECDH-SHA2-NISTP256' >> /etc/ssh/sshd_config && \
+    echo 'KexAlgorithms +diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1' >> /etc/ssh/sshd_config && \
     echo 'Ciphers +aes128-cbc,aes192-cbc,aes256-cbc,3des-cbc,aes128-ctr,aes192-ctr,aes256-ctr' >> /etc/ssh/sshd_config && \
     echo 'MACs +hmac-sha1,hmac-sha1-96,hmac-md5' >> /etc/ssh/sshd_config && \
     echo 'HostKeyAlgorithms +ssh-rsa' >> /etc/ssh/sshd_config && \
