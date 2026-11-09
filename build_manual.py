@@ -134,7 +134,34 @@ CHAPTERS = [
      "an empty string, producing an opaque 'expected length 32' error; and "
      "`env.example` ships a stale key that does not match the client's private "
      "key, so the README's own `cp env.example .env` breaks the crypto."),
-]
+
+     ("Chapter 13 — Self-propagating worm",
+     "ch_13/FINDINGS.md",
+     ["ch_13_worm.png"],
+     "The full chain was observed: connect, brute-force root/password, identify "
+     "the platform, upload the agent, execute it remotely. Containment is exact "
+     "rather than approximate — the worm takes a `host:port` argument and does "
+     "not scan, so `--network none` plus an SSH server inside the same container "
+     "means there is nothing else it can reach.\n\n"
+     "The chapter's most transferable finding is not in the book: a 2021 crypto "
+     "stack (ssh2 0.9 / libssh2) cannot reliably handshake with a current "
+     "OpenSSH, even with every legacy algorithm enabled and confirmed by a real "
+     "ssh client. The code is correct; the environment moved."),
+
+     ("Chapter 14 — Disclosure: tricoder's dual-stack false negatives",
+     "ch_14/DISCLOSURE-socket-addresses.md",
+     [],
+     "Chapter 14 has no code — it is a disclosure template. Filled with a genuine "
+     "defect from this run: the scanner probes only `socket_addresses[0]`, so the "
+     "address family the resolver happens to return first decides whether the "
+     "scan sees anything.\n\n"
+     "Measured: `scanme.nmap.org` resolves IPv4 first, `localhost` resolves "
+     "`::1` first. The same binary is correct on one host and silently wrong on "
+     "another, with no error either way.\n\n"
+     "The report records a correction in its own text: a first draft claimed "
+     "Chapter 3 already contained the fix. It does not — `git log` shows one "
+     "upstream commit and none of mine."),
+     ]
 
 
 def md_body(md_path: pathlib.Path) -> str:

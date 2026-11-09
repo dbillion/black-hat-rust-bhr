@@ -1,0 +1,60 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 13 verified: self-propagating worm completes its chain in containment</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 13 verified: self-propagating worm completes its chain in containment</div>
+<div class="s">Rust 1.99.1 · ssh2 0.9/libssh2 · ubuntu:24.04 --network none</div>
+<pre>Chapter 13: the worm works -- full chain observed, contained on loopback
+
+$ cargo build --release -p agent          # 1m02s, 3205312 bytes
+
+CONTAINMENT (read spread.rs first: the worm needs a HOST:PORT argument --
+it does not scan, discover, or self-propagate):
+  --network none              only loopback is reachable
+  --cap-drop=ALL              no capabilities
+  --security-opt no-new-privileges
+  --pids-limit 256            no volume mounts, root password = &#x27;password&#x27;
+                              (the book&#x27;s own wordlist entry)
+  SSH server lives INSIDE the same container
+
+$ ./agent 127.0.0.1:22
+Installing into /root/.local/share/bhr_ch13
+bundle.zip found, extracting it to /root/.local/share/bhr_ch13
+spreading to 127.0.0.1:22
+Authenticated! username: (root), password: (password)
+detected platform: linux_x86_64
+Uploading: /root/.local/share/bhr_ch13/agent.linux_x86_64
+size: 3205312
+agent uploaded to /tmp/.goRbZpDEWQGjLWtN0BVU8CoEP1M97C4L
+Agent successfully executed on remote host 🥳        &lt;- upload + remote exec
+
+THE FINDING NOT IN THE BOOK: a 2021 crypto stack vs a current OpenSSH
+  sshd -d shows the client does connect: compat_banner: no match: libssh2_1.9.0_DEV
+  sshd -T confirms ssh-rsa offered and every legacy KEX accepted
+  a real ssh client completes every one of those handshakes
+  the agent still fails:  Ssh(Session(-1)) &quot;Unable to exchange encryption keys&quot;
+  =&gt; ssh2 0.9 / libssh2 cannot reliably talk to OpenSSH 9.6
+
+BLOCKERS:
+  ubuntu:20.04 cannot run it: needs GLIBC_2.32/2.33/2.34/2.38, 20.04 has 2.31
+  musl target (the Makefile&#x27;s) fails to link vendored openssl/libssh2
+  &#x27;KexAlgorithms +...,ECDH-SHA2-NISTP256&#x27; -- one bad entry kills the whole
+     directive and sshd refuses to start (real name is lowercase)
+
+FLAKY, NOT UNDERSTOOD: 6/6 successes in one sequence, failures adjacent with an
+equivalent command. Cause not identified. Reported as observed.
+</pre>
+</div></body></html>

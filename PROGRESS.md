@@ -22,10 +22,10 @@ context. The manual is *generated* from this file plus each chapter's
 | 10 | RAT | yes | done, C2 loop verified | ch_10/FINDINGS.md, ch_10_rat.png | see log |
 | 11 | RAT + TLS (no TLS: E2E only) | yes | done, 2 defects noted | ch_11/FINDINGS.md, ch_11_encrypted_rat.png | see log |
 | 12 | shellcode cross-arch | yes | x86_64 done; aarch64/armv7 blocked | — | see log |
-| 13 | self-propagating worm | yes | todo | — | — |
-| 14 | report | no code | todo | — | — |
+| 13 | self-propagating worm | yes | done, chain verified | ch_13/FINDINGS.md, ch_13_worm.png | see log |
+| 14 | disclosure template | no code | done, filled | ch_14/DISCLOSURE-socket-addresses.md | see log |
 
-Done: 12 of 14. Remaining: 2 with code (13, 12-cross-arch) plus ch14 report.
+Done: 14 of 14. Remaining: ch12 cross-arch.
 
 ## Rules for the next run
 
