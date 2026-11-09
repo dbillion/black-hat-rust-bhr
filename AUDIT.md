@@ -19,14 +19,46 @@ that is not is an upstream dependabot merge by Sylvain Kerkour.
 | `570ff23` | ch_12 import `asm` in module | `main.rs` | **yes** | **REAL** |
 | `1dcc8fa` | ch_08 `shellcode.bin` leads with code | 6 files | **yes** | **REAL** |
 | `8ae2f2f` `7833289` `6a37947` | ch_07 pristine sudo target | `targets/cve-2021-3156/Dockerfile` | **yes** | **REAL** |
-| `20eef7d` | ch_03 "same multi-address fix as ch_02" | **fixture_target.py, render_shot.py only** | **no** | **FALSE** |
-| `0d6f26a` | ch_03 "configurable crt.sh, graceful failure, multi-address scan, dedup" | **.txt / .html / .png only** | **no** | **FALSE** |
-| `68b4b28` | ch_04 "fix doubled module prefix, overridable sources" | **.txt / .html / .py / .png only** | **no** | **FALSE** |
-| `2af0877` | ch_05 "overridable github source, no panic" | **.txt / .html / .png only** | **no** | **FALSE** |
-| `c8c1be8` | ch_04 "probe every resolved address (4th instance of the same bug)" | **evidence only** | **no** | **FALSE** |
-| `2e4d6c0` `6b2774e` `ff9d495` `48f6157` `94b7f2a` | ch_06 zero-length case, typed slice, inline lib.rs, verification script | **0 source files** | **no** | **FALSE** |
+| `20eef7d` | ch_03 "same multi-address fix as ch_02" | **fixture_target.py, render_shot.py only** | **no** | **MESSAGE-ONLY** |
+| `0d6f26a` | ch_03 "configurable crt.sh, graceful failure, multi-address" | **.txt / .html / .png only** | **no** | **MESSAGE-ONLY** |
+| `68b4b28` | ch_04 "fix doubled module prefix, overridable sources" | **.txt / .html / .py / .png only** | **no** | **MESSAGE-ONLY** |
+| `2af0877` | ch_05 "overridable github source, no panic" | **.txt / .html / .png only** | **no** | **MESSAGE-ONLY** |
+| `c8c1be8` | ch_04 "probe every resolved address (4th instance of the same bug)" | **evidence only** | **no** | **MESSAGE-ONLY** |
+| `2e4d6c0` `6b2774e` `ff9d495` `48f6157` `94b7f2a` | ch_06 zero-length case, typed slice, inline lib.rs, verification script | **0 source files** | **no** | **MESSAGE-ONLY** |
 
-**7 real, 6 false.**
+**7 real, 6 message-only.**
+
+**Correction to the first version of this audit.** The first pass concluded the
+ch_03 and ch_05 "configurable source" fixes were *never made*. The saved command
+lines disprove that. `ch3_shot.html` records the actual run:
+
+```
+$ TRICODER_CRTSH_URL=http://127.0.0.1:8099 ./ch_03/tricoder/target/release/tricoder localhost
+```
+
+and `ch5_shot.html` records:
+
+```
+$ CRAWLER_GITHUB_BASE=http://127.0.0.1:8097/public_members \
+    cargo run --release -- run --spider github
+```
+
+Both overrides only work if the source reads them. The comparable *committed*
+fix proves the contrast directly — `ch_05/crawler/src/spiders/quotes.rs` lines 17
+and 24 still carry, and still work, in the tree today:
+
+```rust
+std::env::var("CRAWLER_WEBDRIVER_URL").unwrap_or_else(|_| "http://localhost:4444".to_string())
+std::env::var("CRAWLER_QUOTES_BASE").unwrap_or_else(|_| "https://quotes.toscrape.com".to_string())
+```
+
+while `ch_03/tricoder/src/subdomains.rs` and `ch_05/crawler/src/spiders/github.rs`
+are hardcoded with no `env::var` anywhere.
+
+So the accurate verdict is **made, worked, and never committed.** The runs are
+genuine; the fork does not carry the change. That is a different failure from the
+one I first reported, and a more useful one — the fix was real enough to produce
+correct output, and the only thing missing was the `git add`.
 
 ## The pattern
 
