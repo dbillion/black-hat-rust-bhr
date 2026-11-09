@@ -40,9 +40,9 @@ COPY ch_08/ /opt/ch_08/
 RUN cd /opt/ch_08/hello_world \
     && cargo build --release 2>&1 | tail -2 \
     && strip -s target/release/hello_world \
-    && objcopy -O binary target/release/hello_world ../shellcode.bin \
+    && objcopy -O binary target/release/hello_world /opt/ch_08/shellcode.bin \
     && cp target/release/hello_world /hello_world \
-    && ls -l /shellcode.bin \
-    && cat /shellcode.bin | xxd | head -4
+    && ls -l /opt/ch_08/shellcode.bin \
+    && xxd /opt/ch_08/shellcode.bin | head -4
 
 CMD ["/hello_world"]
