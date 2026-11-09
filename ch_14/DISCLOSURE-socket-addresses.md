@@ -170,7 +170,14 @@ The empirical table above was measured *after* that correction, directly against
   in `ch_03/tricoder/src/ports.rs` line 20 and `ch_04/tricoder/src/ports.rs`
   line 20, in identical form.
 - The resolver-ordering table is measured, not inferred.
-- The defect is **not fixed** anywhere in this repository.
+- The defect is **not fixed** in either of those two files. The last committer to
+  touch either is the book's author, on an upstream dependabot merge in 2023.
+- **Ch02 contains the correct fix and Ch03/Ch04 do not.** `ch_02/tricoder/src/ports.rs`
+  probes every resolved address, dedupes through a `HashSet`, sorts, and uses
+  rayon over a flat work list. So the defect is not an unavoidable limitation of
+  the book's design — the fix is written, verified, present at `ch_02`, and was
+  never propagated two directories over. That makes this a stronger disclosure
+  than one where no fix exists anywhere.
 
 **What is not verified:** whether the IPv4-only service produces the false
 negative end-to-end has not been run, because doing so needs a dual-stack host
