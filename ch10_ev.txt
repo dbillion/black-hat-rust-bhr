@@ -1,0 +1,37 @@
+Chapter 10: RAT -- full C2 loop verified end-to-end
+
+$ cargo build --release -p server -p agent -p client   # 1m44s
+2264360 target/release/agent    4405800 target/release/client
+5767248 target/release/server
+
+note: sqlx-core v0.6.0 -> future-incompat report (builds today, won't later)
+
+$ target/release/server            # DATABASE_URL inline, postgres:13 on 127.0.0.1
+[2026-11-09T03:37:03Z INFO  server] starting server on: 0.0.0.0:8080
+
+$ curl -s localhost:8080/api/agents
+{"data":{"agents":[]}}
+
+$ target/release/agent              # self-registers, polls every 1s
+$ curl -s localhost:8080/api/agents
+{"data":{"agents":[{"id":"a00a1c46-37a0-4c2e-9af3-49288f228a28",
+  "created_at":"2026-11-09T03:40:48.292720Z",
+  "last_seen_at":"2026-11-09T03:40:58.336471Z"}]}}
+
+$ client agents
+| a00a1c46-37a0-4c2e-9af3-49288f228a28 | 03:40:48.292720 UTC | 03:46:55.546050 UTC |
+
+$ client exec -a a00a1c46... hostname
+codespaces-3d04a9
+
+$ client jobs
+| f200156e-... | 03:46:55.553888 | 03:46:55.936125 | hostname | codespaces-3d04a9 |
+
+Register -> poll -> dispatch -> execute -> report -> query. All six stages real.
+
+Blockers hit and cleared on the way:
+  - port 8080 held by Ch9's phishing server (killed by PID via ss -ltnp)
+  - "cd X && nohup Y & Z" breaks the && chain -> absolute paths
+  - codespace disk at 0 bytes free, twice -> removed rebuildable artifacts
+
+Not verified: the Dockerfile image (rust:latest builder too large for the disk).

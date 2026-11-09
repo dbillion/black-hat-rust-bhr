@@ -1,0 +1,31 @@
+Chapter 9: Phishing -- dnsquat, credential server, emails
+
+$ cd ch_09/dnsquat && cargo run -q -- domain .com | wc -l
+26
+(output matches the book's README byte-for-byte)
+
+$ cd ch_09/phishing && cargo build --release -p server
+    Finished `release` profile [optimized] target(s) in 2m 05s
+
+$ target/release/server --port 8080 --directory public
+[2026-11-09T03:14:42Z INFO  server] Starting server. port=8080, directory=public
+
+$ curl -X POST http://127.0.0.1:8080/api/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"victim@example.com","password":"hunter2hunter2"}'
+{"ok":true}
+HTTP=200
+
+$ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/
+200
+
+$ sqlite3 db.sqlite "select email,password,timestamp from credentials"
+('victim@example.com', 'hunter2hunter2', '2026-11-09T03:14:45.797307219+00:00')
+
+$ cd ch_09/emails && cargo check
+    Finished `dev` profile        # clean, no warnings
+
+No source fixes needed this chapter: the book's code built and ran as written.
+Two gaps, both environmental:
+  - webapp (Yew WASM) not built -- wasm-pack absent
+  - evil_twin not run -- needs a Pi radio in AP mode + hostapd/dnsmasq/iptables
