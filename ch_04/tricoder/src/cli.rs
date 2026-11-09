@@ -54,7 +54,10 @@ pub fn scan(target: &str) -> Result<(), Error> {
                 match module.enumerate(target).await {
                     Ok(new_subdomains) => Some(new_subdomains),
                     Err(err) => {
-                        log::error!("subdomains/{}: {}", module.name(), err);
+                        // module.name() already returns a namespaced id such as
+                    // "subdomains/crtsh", so prefixing it again doubled the
+                    // namespace into "subdomains/subdomains/crtsh".
+                    log::error!("{}: {}", module.name(), err);
                         None
                     }
                 }

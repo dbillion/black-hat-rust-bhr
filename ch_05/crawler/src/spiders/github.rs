@@ -58,14 +58,25 @@ impl super::Spider for GitHubSpider {
     }
 
     fn start_urls(&self) -> Vec<String> {
-        vec!["https://api.github.com/orgs/google/public_members?per_page=100&page=1".to_string()]
+        // Overridable so the crawl loop can be exercised against a local fixture.
+        // The public GitHub API is rate-limited and its search endpoints are the
+        // slowest part of any run, so measuring through it measures the limit,
+        // not the crawler.
+        let base = std::env::var("CRAWLER_GITHUB_BASE")
+            .unwrap_or_else(|_| "https://api.github.com/orgs/google/public_members".to_string());
+        vec![format!("{}?per_page=100&page=1", base)]
     }
 
     async fn scrape(&self, url: String) -> Result<(Vec<GitHubItem>, Vec<String>), Error> {
         let items: Vec<GitHubItem> = self.http_client.get(&url).send().await?.json().await?;
 
         let next_pages_links = if items.len() == self.expected_number_of_results {
-            let captures = self.page_regex.captures(&url).unwrap();
+            // A URL without ?page=N has no captures, and unwrapping it panics.
+            // Treat that as "no next page" instead.
+            let captures = match self.page_regex.captures(&url) {
+                Some(c) => c,
+                None => return Ok((items, Vec::new())),
+            };
             let old_page_number = captures.get(1).unwrap().as_str().to_string();
             let mut new_page_number = old_page_number
                 .parse::<usize>()

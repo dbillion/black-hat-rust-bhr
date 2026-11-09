@@ -6,6 +6,11 @@ pub enum Error {
     CliUsage,
     #[error("Reqwest: {0}")]
     Reqwest(String),
+
+    /// The certificate transparency source (crt.sh by default) is unavailable,
+    /// returned an error status, or answered with something that is not JSON.
+    #[error("Upstream unavailable: {0}")]
+    UpstreamUnavailable(String),
 }
 
 impl std::convert::From<reqwest::Error> for Error {
