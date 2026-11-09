@@ -117,6 +117,23 @@ CHAPTERS = [
      "rather than by a single request.\n\n"
      "The agent executes any command it is handed, as the user running it, with "
      "no allowlist and no sandbox. That is the design and the lesson."),
+
+    ("Chapter 11 — The 'TLS' chapter, which ships no TLS",
+     "ch_11/FINDINGS.md",
+     ["ch_11_encrypted_rat.png"],
+     "The full C2 loop runs with real cryptography: the agent generates its own "
+     "ed25519 identity keypair and an x25519 prekey on first run, the client "
+     "encrypts the command against that prekey, and the agent decrypts, executes, "
+     "and encrypts the result back. Two plaintexts were recovered correctly.\n\n"
+     "The headline finding is a mislabel, not a bug: `server/src/main.rs` line 35 "
+     "binds plain HTTP with no TLS anywhere in the chapter. Confidentiality comes "
+     "entirely from application-layer ChaCha20-Poly1305 — which is *stronger* than "
+     "TLS here, because the C2 host never sees the plaintext either — but it gives "
+     "a network observer everything.\n\n"
+     "Two real defects: `CLIENT_IDENTITY_PUBLIC_KEY` is required yet defaults to "
+     "an empty string, producing an opaque 'expected length 32' error; and "
+     "`env.example` ships a stale key that does not match the client's private "
+     "key, so the README's own `cp env.example .env` breaks the crypto."),
 ]
 
 
