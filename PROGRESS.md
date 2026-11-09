@@ -18,14 +18,14 @@ context. The manual is *generated* from this file plus each chapter's
 | 06 | fuzzing + SVG XSS | yes | done | ch_06_fuzzing_overflow.png, ch_06_svg_xss.png | 9f68414 |
 | 07 | CVE-2021-3156 | yes | done, gap noted | ch_07/FINDINGS.md | target commits |
 | 08 | shellcode | yes | done, 2 of 3 verified | ch_08_shellcode_executor.png, ch_08_shell_shellcode.png | see log |
-| 09 | phishing / DNS squat / evil twin | yes | todo | — | — |
+| 09 | phishing / DNS squat / evil twin | yes | done, 2 gaps noted | ch_09/FINDINGS.md, ch_09_phishing.png | see log |
 | 10 | RAT | yes | todo | — | — |
 | 11 | RAT + TLS | yes | todo | — | — |
 | 12 | shellcode cross-arch | yes | x86_64 done; aarch64/armv7 blocked | — | see log |
 | 13 | self-propagating worm | yes | todo | — | — |
 | 14 | report | no code | todo | — | — |
 
-Done: 9 of 14. Remaining: 5 with code (9, 10, 11, 13, 12-cross-arch) plus ch14 report.
+Done: 10 of 14. Remaining: 4 with code (10, 11, 13, 12-cross-arch) plus ch14 report.
 
 ## Rules for the next run
 

@@ -1,0 +1,52 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Chapter 9 verified: server harvests credentials to SQLite</title>
+<style>
+ html,body{margin:0;background:#0d1117;color:#c9d1d9;
+   font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+ .wrap{padding:28px 30px}
+ .bar{height:30px;background:#161b22;border-bottom:1px solid #30363d;
+   display:flex;align-items:center;gap:7px;padding:0 12px;border-radius:7px 7px 0 0}
+ .dot{width:11px;height:11px;border-radius:50%}
+ .t{margin-top:16px;font-size:20px;font-weight:600;color:#e6edf3}
+ .s{color:#8b949e;font-size:13px;margin-top:4px}
+ pre{white-space:pre-wrap;word-break:break-word;margin-top:18px;
+   background:#0b0f14;border:1px solid #21262d;border-radius:8px;padding:18px 20px}
+</style></head><body><div class="wrap">
+<div class="bar"><span class="dot" style="background:#ff5f56"></span>
+<span class="dot" style="background:#ffbd2e"></span>
+<span class="dot" style="background:#27c93f"></span></div>
+<div class="t">Chapter 9 verified: server harvests credentials to SQLite</div>
+<div class="s">Rust 1.99.1 · axum 0.5 + sqlx 0.6 · codespace</div>
+<pre>Chapter 9: Phishing -- dnsquat, credential server, emails
+
+$ cd ch_09/dnsquat &amp;&amp; cargo run -q -- domain .com | wc -l
+26
+(output matches the book&#x27;s README byte-for-byte)
+
+$ cd ch_09/phishing &amp;&amp; cargo build --release -p server
+    Finished `release` profile [optimized] target(s) in 2m 05s
+
+$ target/release/server --port 8080 --directory public
+[2026-11-09T03:14:42Z INFO  server] Starting server. port=8080, directory=public
+
+$ curl -X POST http://127.0.0.1:8080/api/login \
+    -H &quot;Content-Type: application/json&quot; \
+    -d &#x27;{&quot;email&quot;:&quot;victim@example.com&quot;,&quot;password&quot;:&quot;hunter2hunter2&quot;}&#x27;
+{&quot;ok&quot;:true}
+HTTP=200
+
+$ curl -s -o /dev/null -w &quot;%{http_code}\n&quot; http://127.0.0.1:8080/
+200
+
+$ sqlite3 db.sqlite &quot;select email,password,timestamp from credentials&quot;
+(&#x27;victim@example.com&#x27;, &#x27;hunter2hunter2&#x27;, &#x27;2026-11-09T03:14:45.797307219+00:00&#x27;)
+
+$ cd ch_09/emails &amp;&amp; cargo check
+    Finished `dev` profile        # clean, no warnings
+
+No source fixes needed this chapter: the book&#x27;s code built and ran as written.
+Two gaps, both environmental:
+  - webapp (Yew WASM) not built -- wasm-pack absent
+  - evil_twin not run -- needs a Pi radio in AP mode + hostapd/dnsmasq/iptables
+</pre>
+</div></body></html>

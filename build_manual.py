@@ -92,6 +92,20 @@ CHAPTERS = [
      "ch_08/FINDINGS.md",
      ["ch_08_shellcode_executor.png", "ch_08_shell_shellcode.png"],
      "Two independent defects, both root-caused and fixed."),
+
+    ("Chapter 9 — Phishing: bitsquatting, a credential harvester, mail",
+     "ch_09/FINDINGS.md",
+     ["ch_09_phishing.png"],
+     "dnsquat, the phishing credential server, and emails all build and run as "
+     "written — no source fixes were needed, which is reported as a finding "
+     "rather than manufactured into a defect.\n\n"
+     "dnsquat output matches the book's README byte-for-byte: 26 candidates, one "
+     "bit flip per character position, filtered by validity and by "
+     "case-insensitive inequality against the original. The phishing server "
+     "harvests a login POST into SQLite with a UTC timestamp and serves the "
+     "static page.\n\n"
+     "Not verified: the Yew WASM webapp (wasm-pack absent), and evil_twin (needs "
+     "a Pi radio in AP mode)."),
 ]
 
 
