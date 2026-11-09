@@ -15,7 +15,7 @@ context. The manual is *generated* from this file plus each chapter's
 | 04 | tricoder | yes | done, **fixes now in repo** (`b5a2995`) | ch_04_modules_tricoder.png | c8c1be8 *(evidence only)* |
 | 05 | crawler (OSINT) | yes | done, **fix now in repo** (`b5a2995`) | ch_05_crawler_osint.png | 2af0877 *(evidence only)* |
 | 05 | crawler (JS/browser) | yes | done, quotes.rs **fix REAL** | ch_05_js_crawler.png | 3644334, 2da5473 |
-| 06 | fuzzing + SVG XSS | yes | done, **fixes now in repo** (`b5a2995`) | ch_06_fuzzing_overflow.png, ch_06_svg_xss.png | *(none — `9f68414` does not exist)* |
+| 06 | fuzzing + SVG XSS | yes | done, **fixes never existed** (proven: no uncommitted change, no diff) | ch_06_fuzzing_overflow.png, ch_06_svg_xss.png | *(none — `9f68414` does not exist)* |
 | 07 | CVE-2021-3156 | yes | done, gap noted | ch_07/FINDINGS.md | 8ae2f2f, 7833289, 6a37947 **REAL** |
 | 08 | shellcode | yes | done, 2 of 3 verified | ch_08_shellcode_executor.png, ch_08_shell_shellcode.png | 8db11df, 1dcc8fa **REAL** |
 | 09 | phishing / DNS squat / evil twin | yes | done, 2 gaps noted | ch_09/FINDINGS.md, ch_09_phishing.png | e582fca |
