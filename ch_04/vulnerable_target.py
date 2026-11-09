@@ -20,7 +20,7 @@ FIXTURE_SUBDOMAIN = "localhost"
 LEAKS = {
     "/.git/HEAD": "ref: refs/heads/master\n",
     "/.env": "DB_PASSWORD=supersecret\nSECRET_KEY=notsosecret\n",
-    "/.git/config": "[core]\n\trepositoryformatversion = 0\n",
+    "/.git/config": "[core]\n\trepositoryformatversion = 0\n[remote \"origin\"]\n\turl = git@example.com:demo.git\n[branch \"master\"]\n\tremote = origin\n",
 }
 
 

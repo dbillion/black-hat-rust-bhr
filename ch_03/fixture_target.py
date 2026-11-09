@@ -9,7 +9,7 @@ import socket
 import threading
 import time
 
-PORTS = [80, 443, 8000, 8080, 8443]
+PORTS = [3306, 5432, 8443, 8080, 9999]
 
 
 class CrtShFixture(http.server.BaseHTTPRequestHandler):
